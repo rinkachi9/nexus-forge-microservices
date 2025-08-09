@@ -1,0 +1,125 @@
+## .NET Core / ASP.NET
+bin/
+obj/
+out/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+*.vspx
+*.pidb
+*.svclog
+*.ide
+
+# IIS Express
+.vs/
+.vscode/
+*.launch.json
+*.applicationhost.config
+*.vspscc
+
+# Build Results
+*.dll
+*.exe
+*.pdb
+*.cache
+*.dbmdl
+*.bak
+*.log
+*.snapshot
+*.tmp
+*.tmp.*
+*.vsix
+*.nupkg
+*.msi
+*.msm
+*.msp
+
+# Coverage & test results
+TestResults/
+*.coverage
+*.coveragexml
+*.testsettings
+*.vsmdi
+*.trx
+*.code-workspace
+
+# ASP.NET
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+# Publish
+publish/
+*.Publish.xml
+
+# Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.sln.docstates
+*.suo
+*.user
+*.userprefs
+
+# Logs
+*.log
+logs/
+log/
+
+# Entity Framework
+Migrations/
+*.sqlite
+*.db
+
+# npm / frontend
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.*
+
+# Paket (if used)
+.paket/
+paket-files/
+
+# JetBrains Rider
+.idea/
+.idea/*
+
+# Visual Studio for Mac
+*.userprefs
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# TFS
+$tf/
+
+# DotCover
+*.dotCover
+
+# Temporary files
+~$*
+*.tmp
+*.bak
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Backup & generated files
+*.bak
+*.orig
+*.rej
+
+# Azure Pipeline
+.azure-pipelines/
+
+global.json

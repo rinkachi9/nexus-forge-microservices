@@ -1,0 +1,58 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <!-- Enforce deterministic builds -->
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- ASP.NET / Web -->
+        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
+        <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+        <PackageVersion Include="FluentValidation.AspNetCore" Version="11.9.0" />
+
+        <!-- Persistence -->
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
+
+        <!-- Messaging -->
+        <PackageVersion Include="Confluent.Kafka" Version="2.5.0" />
+
+        <!-- Observability -->
+        <PackageVersion Include="Serilog.AspNetCore" Version="8.0.1" />
+        <PackageVersion Include="Serilog.Sinks.Console" Version="5.0.1" />
+        <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
+        <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
+
+        <!-- Background -->
+        <PackageVersion Include="Quartz" Version="3.9.0" />
+        <PackageVersion Include="Polly" Version="8.4.0" />
+
+        <!-- Mapping / Validation -->
+        <PackageVersion Include="Mapster" Version="7.4.0" />
+        <PackageVersion Include="FluentValidation" Version="11.9.0" />
+
+        <!-- Security / Auth -->
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+
+        <!-- Caching -->
+        <PackageVersion Include="StackExchange.Redis" Version="2.8.24" />
+
+        <!-- Testing -->
+        <PackageVersion Include="NUnit" Version="4.1.0" />
+        <PackageVersion Include="Moq" Version="4.20.72" />
+        <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+        <PackageVersion Include="Testcontainers" Version="3.10.0" />
+        <PackageVersion Include="DotNet.Testcontainers" Version="3.10.0" />
+
+        <!-- Analysers-->
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" />
+        <PackageReference Include="Meziantou.Analyzer" PrivateAssets="all" />
+    </ItemGroup>
+</Project>

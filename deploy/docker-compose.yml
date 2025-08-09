@@ -1,0 +1,250 @@
+version: "3"
+
+services:
+  backoffice-web-api:
+    profiles:
+      - integration
+      - testing
+      - test-integration
+    image: backoffice-web-api
+    build:
+      context: .
+      dockerfile: src/Backoffice.WebApi/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Testing
+      - ASPNETCORE_URLS=http://+:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      backoffice-migrator:
+        condition: service_completed_successfully
+
+  backoffice-hub-web-api:
+    profiles:
+      - integration
+      - testing
+      - test-integration
+    image: backoffice-hub-web-api
+    build:
+      context: .
+      dockerfile: src/Backoffice.Hub.WebApi/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Testing
+      - ASPNETCORE_URLS=http://+:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    ports:
+      - "8081:8080"
+    expose:
+      - 8081
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      backoffice-migrator:
+        condition: service_completed_successfully
+
+  backoffice-mobile-web-api:
+    profiles:
+      - integration
+      - testing
+      - test-integration
+    image: backoffice-mobile-web-api
+    build:
+      context: .
+      dockerfile: src/Backoffice.Mobile.WebApi/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Testing
+      - ASPNETCORE_URLS=http://+:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    ports:
+      - "8082:8080"
+    expose:
+      - 8082
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      backoffice-migrator:
+        condition: service_completed_successfully
+
+  backoffice-migrator:
+    profiles:
+      - integration
+      - testing
+      - test-integration
+    image: backoffice-migrator
+    build:
+      context: .
+      dockerfile: src/Backoffice.Migrator/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Testing
+      - DOTNET_ENVIRONMENT=Testing
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backoffice-seeder:
+    profiles:
+      - integration
+      - testing
+    image: backoffice-seeder
+    build:
+      context: .
+      dockerfile: src/Backoffice.Seeder/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Testing
+      - DOTNET_ENVIRONMENT=Testing
+    depends_on:
+      backoffice-migrator:
+        condition: service_completed_successfully
+
+  postgres:
+    profiles:
+      - development
+      - integration
+      - testing
+      - test-integration
+      - test-unit
+    image: postgis/postgis:15-3.3
+    restart: always
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    user: postgres
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: admin
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dev -d admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    expose:
+      - 5432
+    volumes:
+      - ./docker/utils/postgres:/docker-entrypoint-initdb.d
+
+  keycloak:
+    profiles:
+      - development
+      - integration
+      - testing
+      - test-integration
+    image: quay.io/keycloak/keycloak:24.0.2
+    container_name: keycloak
+    command: >
+      start-dev
+      --https-port=8443
+      --https-certificate-file=/etc/x509/https/tls.crt
+      --https-certificate-key-file=/etc/x509/https/tls.key
+      --import-realm
+    ports:
+      - "9000:8080"
+      - "9443:8443"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+    volumes:
+      - ./docker/utils/keycloak/import:/opt/keycloak/data/import
+      - ./docker/utils/keycloak/certs:/etc/x509/https
+    expose:
+      - 9000
+      - 9443
+
+  telemetry:
+    profiles:
+      - development
+      - integration
+    image: jaegertracing/all-in-one
+    restart: always
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+      - "4317:4317"
+
+  zookeeper:
+    profiles:
+      - development
+      - integration
+      - testing
+      - test-integration
+    image: docker.io/bitnami/zookeeper:3.7
+    restart: always
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    profiles:
+      - development
+      - integration
+      - testing
+      - test-integration
+    image: docker.io/bitnami/kafka:2
+    ports:
+      - ${KAFKA_PORT:-9092}:9093
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,LOCALHOST://localhost:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=LOCALHOST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,LOCALHOST://:9093
+    healthcheck:
+      test: 'bash -c "printf \"\" > /dev/tcp/localhost/9092"'
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    restart: always
+    depends_on:
+      - zookeeper
+    expose:
+      - 9092
+
+  kafka-init:
+    profiles:
+      - development
+      - integration
+      - testing
+      - test-integration
+    image: docker.io/bitnami/kafka:2
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+    volumes:
+      - ./docker/utils/kafka:/kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: [ "/bin/bash", "/kafka-init/kafka-create-topics.sh" ]
+
+  redpanda-console:
+    profiles:
+      - development
+      - integration
+      - testing
+    image: docker.redpanda.com/redpandadata/console:latest
+    ports:
+      - "9001:8080"
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    restart: always
+    expose:
+      - 9001
+    depends_on:
+      - kafka
